@@ -1,0 +1,37 @@
+stages:
+  - version-check
+  - build-docker-file
+  - push-docker-image
+  - deploy
+
+
+version-checks:
+  stage: version-check
+  tags:
+    - dev
+  script:
+    - docker --version
+  
+docker-build:
+  stage: build-docker-file
+  tags:
+    - dev
+  script:
+    - docker build -t trainwithshubham/notes-app .
+    - docker images
+
+
+push-image:
+  stage: push-docker-image
+  tags:
+    - dev
+  script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - docker push trainwithshubham/notes-app:latest
+
+deploy:
+  stage: deploy
+  tags:
+    - dev
+  script:
+    - docker run -itd --name notes-app -p 8000:8000 trainwithshubham/notes-app:latest
